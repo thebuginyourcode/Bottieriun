@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Bot Control Panel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Bot Control Panel</h1>
+    <form id="connect-form" class="connect-form">
+      <input type="text" id="host" placeholder="Server host" required />
+      <input type="number" id="port" placeholder="Port" value="25565" />
+      <input type="text" id="username" placeholder="Bot username" required />
+      <input type="text" id="version" placeholder="Version (optional)" />
+      <select id="auth">
+        <option value="offline">Offline / Cracked</option>
+        <option value="microsoft">Microsoft Account</option>
+      </select>
+      <button type="submit" id="connect-btn">Connect</button>
+      <button type="button" id="disconnect-btn" disabled>Disconnect</button>
+    </form>
+    <span id="connection-status" class="status-pill disconnected">Disconnected</span>
+  </header>
+
+  <main class="layout">
+    <section class="viewer-panel">
+      <div class="panel-title">Live First-Person View</div>
+      <div class="viewer-frame-wrap">
+        <iframe id="viewer-frame" title="Bot live view"></iframe>
+        <div id="viewer-placeholder" class="viewer-placeholder">
+          Connect the bot to start the live view
+        </div>
+      </div>
+    </section>
+
+    <aside class="status-panel">
+      <div class="panel-title">Status</div>
+      <dl class="status-grid">
+        <dt>Health</dt><dd id="stat-health">-</dd>
+        <dt>Food</dt><dd id="stat-food">-</dd>
+        <dt>Position</dt><dd id="stat-position">-</dd>
+      </dl>
+      <div class="panel-title">Players Nearby</div>
+      <ul id="players-list" class="players-list"></ul>
+      <div class="panel-title">Inventory</div>
+      <ul id="inventory-list" class="inventory-list"></ul>
+    </aside>
+  </main>
+
+  <section class="controls">
+    <div class="control-group">
+      <div class="panel-title">Go To Coordinates</div>
+      <form id="goto-form">
+        <input type="number" id="goto-x" placeholder="X" required />
+        <input type="number" id="goto-y" placeholder="Y" required />
+        <input type="number" id="goto-z" placeholder="Z" required />
+        <button type="submit">Go</button>
+      </form>
+    </div>
+
+    <div class="control-group">
+      <div class="panel-title">Follow Player</div>
+      <form id="follow-form">
+        <select id="follow-username"></select>
+        <button type="submit">Follow</button>
+      </form>
+    </div>
+
+    <div class="control-group">
+      <div class="panel-title">Collect Wood</div>
+      <form id="collect-form">
+        <input type="number" id="collect-amount" placeholder="Log count" value="5" min="1" />
+        <button type="submit">Collect</button>
+      </form>
+    </div>
+
+    <div class="control-group">
+      <div class="panel-title">Task Control</div>
+      <button id="stop-btn" class="danger">Stop Current Task</button>
+    </div>
+
+    <div class="control-group chat-group">
+      <div class="panel-title">Chat</div>
+      <form id="chat-form">
+        <input type="text" id="chat-message" placeholder="Say something..." />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="log-panel">
+    <div class="panel-title">Activity Log</div>
+    <pre id="log-output"></pre>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>

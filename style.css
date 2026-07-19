@@ -1,0 +1,200 @@
+:root {
+  --bg: #14161a;
+  --panel: #1d2025;
+  --panel-alt: #23272e;
+  --border: #33383f;
+  --text: #e6e6e6;
+  --muted: #9aa0a6;
+  --accent: #5ec26a;
+  --accent-dim: #3a7a44;
+  --danger: #d9534f;
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.topbar h1 {
+  font-size: 18px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.connect-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.connect-form input,
+.connect-form select {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.connect-form input[type="text"] { width: 130px; }
+.connect-form input[type="number"] { width: 80px; }
+
+button {
+  background: var(--accent-dim);
+  color: white;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button:hover:not(:disabled) { background: var(--accent); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+button.danger { background: var(--danger); }
+button.danger:hover { background: #e8756f; }
+
+.status-pill {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-pill.connected { background: rgba(94,194,106,0.2); color: var(--accent); }
+.status-pill.disconnected { background: rgba(217,83,79,0.2); color: var(--danger); }
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.panel-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.viewer-panel, .status-panel, .control-group, .log-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.viewer-frame-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#viewer-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.viewer-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  margin: 0 0 16px 0;
+  font-size: 13px;
+}
+.status-grid dt { color: var(--muted); }
+.status-grid dd { margin: 0; text-align: right; }
+
+.players-list, .inventory-list {
+  list-style: none;
+  margin: 0 0 16px 0;
+  padding: 0;
+  font-size: 13px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.players-list li, .inventory-list li {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 0 20px 12px;
+}
+
+.control-group form {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.control-group input, .control-group select {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  flex: 1;
+  min-width: 60px;
+}
+
+.chat-group form { flex-wrap: nowrap; }
+
+.log-panel {
+  margin: 0 20px 20px;
+}
+
+#log-output {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  height: 160px;
+  overflow-y: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+}
