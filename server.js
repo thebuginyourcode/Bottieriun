@@ -27,14 +27,133 @@ app.use('/viewer', viewerProxy);
 
 let bot = null;
 let viewerActive = false;
+let connectionState = 'idle'; // idle | connecting | connected
+let connectTimeout = null;
 let logBuffer = [];
 const MAX_LOG = 300;
+const CONNECT_TIMEOUT_MS = 20000;
 
 const LOG_NAMES = [
   'oak_log', 'birch_log', 'spruce_log', 'jungle_log',
   'acacia_log', 'dark_oak_log', 'mangrove_log', 'cherry_log', 'crimson_stem', 'warped_stem'
 ];
 
+function log(msg) {
+  const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  logBuffer.push(entry);
+  if (logBuffer.length > MAX_LOG) logBuffer.shift();
+  console.log(entry);
+}
+
+function resetConnection() {
+  if (connectTimeout) {
+    clearTimeout(connectTimeout);
+    connectTimeout = null;
+  }
+  bot = null;
+  viewerActive = false;
+  connectionState = 'idle';
+}
+
+function requireBot(res) {
+  if (!bot || !bot.entity || connectionState !== 'connected') {
+    res.status(400).json({ error: 'Bot is not connected' });
+    return false;
+  }
+  return true;
+}
+
+// ---- Connection ----
+
+app.post('/api/connect', (req, res) => {
+  if (connectionState === 'connecting' || connectionState === 'connected') {
+    return res.status(400).json({ error: `Already ${connectionState}. Disconnect first.` });
+  }
+
+  const { host, port, username, version, auth } = req.body || {};
+  if (!host || !username) {
+    return res.status(400).json({ error: 'host and username are required' });
+  }
+
+  try {
+    connectionState = 'connecting';
+
+    bot = mineflayer.createBot({
+      host,
+      port: port ? Number(port) : 25565,
+      username,
+      version: version || undefined,
+      auth: auth === 'microsoft' ? 'microsoft' : 'offline'
+    });
+
+    bot.loadPlugin(pathfinder);
+    bot.loadPlugin(collectBlockPlugin);
+
+    connectTimeout = setTimeout(() => {
+      if (connectionState === 'connecting') {
+        log(`Connection timed out after ${CONNECT_TIMEOUT_MS / 1000}s`);
+        try { bot && bot.quit(); } catch (_) {}
+        resetConnection();
+      }
+    }, CONNECT_TIMEOUT_MS);
+
+    bot.once('spawn', () => {
+      clearTimeout(connectTimeout);
+      connectTimeout = null;
+      connectionState = 'connected';
+      log(`Spawned as "${bot.username}" on ${host}:${port || 25565}`);
+
+      const movements = new Movements(bot);
+      bot.pathfinder.setMovements(movements);
+
+      if (!viewerActive) {
+        mineflayerViewer(bot, { port: Number(VIEWER_PORT), firstPerson: true });
+        viewerActive = true;
+        log(`Live first-person view started on port ${VIEWER_PORT}`);
+      }
+    });
+
+    bot.on('chat', (sender, message) => {
+      if (sender === bot.username) return;
+      log(`<${sender}> ${message}`);
+    });
+
+    bot.on('kicked', (reason) => {
+      log(`Kicked from server: ${JSON.stringify(reason)}`);
+      resetConnection();
+    });
+
+    bot.on('error', (err) => {
+      log(`Bot error: ${err.message}`);
+      if (connectionState === 'connecting') {
+        resetConnection();
+      }
+    });
+
+    bot.on('end', () => {
+      log('Disconnected from server');
+      resetConnection();
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    resetConnection();
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/disconnect', (req, res) => {
+  if (!bot) return res.status(400).json({ error: 'Not connected' });
+  try { bot.quit(); } catch (_) {}
+  resetConnection();
+  res.json({ ok: true });
+});
+
+// ---- Status / log polling ----
+
+app.get('/api/status', (req, res) => {
+  if (connectionState !== 'connected' || !bot || !bot.entity) {
+    return res.json({ connected: false, state: c
 function log(msg) {
   const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
   logBuffer.push(entry);
